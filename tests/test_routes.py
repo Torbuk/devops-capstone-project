@@ -22,8 +22,10 @@ BASE_URL = "/accounts"
 
 HTTPS_ENVIRON = {'wsgi.url_scheme': 'https'}
 
+
 ######################################################################
 #  T E S T   C A S E S
+
 ######################################################################
 class TestAccountService(TestCase):
     """Account Service Tests"""
@@ -46,7 +48,6 @@ class TestAccountService(TestCase):
         """Runs before each test"""
         db.session.query(Account).delete()  # clean up the last tests
         db.session.commit()
-
         self.client = app.test_client()
 
     def tearDown(self):
@@ -56,7 +57,6 @@ class TestAccountService(TestCase):
     ######################################################################
     #  H E L P E R   M E T H O D S
     ######################################################################
-
     def _create_accounts(self, count):
         """Factory method to create accounts in bulk"""
         accounts = []
@@ -76,7 +76,6 @@ class TestAccountService(TestCase):
     ######################################################################
     #  A C C O U N T   T E S T   C A S E S
     ######################################################################
-
     def test_index(self):
         """It should get 200_OK from the Home Page"""
         response = self.client.get("/")
@@ -124,20 +123,21 @@ class TestAccountService(TestCase):
             json=account.serialize(),
             content_type="test/html"
         )
-        self.assertEqual(response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+        self.assertEqual(
+            response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE
+            )
 
     # ADD YOUR TEST CASES HERE ...
-
     def test_get_account(self):
         """It should Read a single Account"""
         account = self._create_accounts(1)[0]
         resp = self.client.get(
-            f"{BASE_URL}/{account.id}", content_type="application/json"
+            f"{BASE_URL}/{account.id}",
+            content_type="application/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(data["name"], account.name)
-
 
     def test_get_account_not_found(self):
         """It should not Read an Account that is not found"""
@@ -162,7 +162,10 @@ class TestAccountService(TestCase):
         # update the account
         new_account = resp.get_json()
         new_account["name"] = "Something Known"
-        resp = self.client.put(f"{BASE_URL}/{new_account['id']}", json=new_account)
+        resp = self.client.put(
+            f"{BASE_URL}/{new_account['id']}",
+            json=new_account
+        )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         updated_account = resp.get_json()
         self.assertEqual(updated_account["name"], "Something Known")
@@ -180,7 +183,8 @@ class TestAccountService(TestCase):
         headers = {
             'X-Frame-Options': 'SAMEORIGIN',
             'X-Content-Type-Options': 'nosniff',
-            'Content-Security-Policy': 'default-src \'self\'; object-src \'none\'',
+            'Content-Security-Policy':
+            'default-src \'self\'; object-src \'none\'',
             'Referrer-Policy': 'strict-origin-when-cross-origin'
         }
         for key, value in headers.items():
@@ -191,4 +195,7 @@ class TestAccountService(TestCase):
         response = self.client.get('/', environ_overrides=HTTPS_ENVIRON)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Check for the CORS header
-        self.assertEqual(response.headers.get('Access-Control-Allow-Origin'), '*')
+        self.assertEqual(
+            response.headers.get('Access-Control-Allow-Origin'),
+            '*'
+        )
