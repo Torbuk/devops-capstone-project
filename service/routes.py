@@ -101,7 +101,7 @@ def get_accounts(account_id):
 def update_accounts(account_id):
     """
     Update an Account
-    This endpoint will update an Account based on the posted data
+    This endpoint will update an Account based on the posted data.
     """
     app.logger.info("Request to update an Account with id: %s", account_id)
     account = Account.find(account_id)
